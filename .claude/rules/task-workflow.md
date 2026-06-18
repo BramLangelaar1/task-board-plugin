@@ -63,7 +63,8 @@ Notifications are one-way (the keeper runs `notify` on a transition). To let the
 it applied, run the keeper session with `--channels plugin:telegram@claude-plugins-official` (reusing the
 same bot); the lead applies the reply and commits the move: `go <id>` → approved → brainstorming,
 `no-go <id>` → `decisions/`, `ship <id>` → deploy. Without the channel, alerts still send but replies
-aren't received.
+aren't received. One inbound stream per bot: run the channel in exactly one keeper session per bot, and
+for multiple boards give each its own bot (separate token + `TELEGRAM_STATE_DIR`) rather than sharing one.
 
 ## Hard rules
 Commit/push/merge/deploy ONLY on explicit user request. Keep the board on the default branch in sync by
