@@ -65,6 +65,9 @@ so:
 - Run the channel in **exactly one** board-keeper session per bot. Enabling the telegram channel in two
   sessions on the same bot makes one silently swallow the other's replies (a consumed update is gone — it
   is not redelivered).
+- **Enabled ≠ listening.** If the telegram plugin is enabled in a session but that session was launched
+  **without** `--channels`, it still consumes the bot's `getUpdates` and **silently drops** replies. Either
+  run that session with `--channels`, or don't leave the plugin enabled in a non-channel session.
 - For **multiple boards**, give each its **own bot** — a separate BotFather token + its own
   `TELEGRAM_STATE_DIR` — instead of sharing one bot. Each bot then serves one board, so replies are
   naturally delivered to the right keeper with no routing. (`notify` honors `TELEGRAM_STATE_DIR`, so

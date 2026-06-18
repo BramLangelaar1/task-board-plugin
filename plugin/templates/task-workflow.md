@@ -47,8 +47,9 @@ session IS the keeper.
   the feature branch (e.g. `git merge --no-ff -m "Merge: NNNN <one-liner>"` so each merge maps back to
   its task NNNN). Stamp `merge_commit/merged/gates`.
 - `done/ → shipped/` ONLY via your deploy command + a passing post-deploy verification (smoke + any
-  `[live]` items re-checked on the deployed environment). Stamp `deploy_sha/shipped/verified/release`
-  and append a line to `RELEASES.md`.
+  `[live]` items re-checked on the deployed environment). Use the fan-out (`/task-board:ship <deploy_sha>`):
+  it moves only **deployable** carried tasks and MUST skip `kind: doc` and `deployable: false` tasks, which
+  stay terminal in `done/`. Stamp `deploy_sha/shipped/verified/release` and append a line to `RELEASES.md`.
 
 ## Non-deployable work
 Specs, plans, audits, research, design docs terminate in `done/` with `kind: doc`,
