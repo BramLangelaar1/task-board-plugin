@@ -1,0 +1,28 @@
+{
+  "name": "@task-board/board",
+  "version": "0.1.0",
+  "description": "Board domain: schema types, the status pipeline, a task parser, and board sources (filesystem + GitHub).",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.21",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "task-board-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Installable, project-agnostic plugin: mobile-friendly Kanban + Telegram notifications over a project's .claude/tasks board.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@11.8.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter @task-board/web dev",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  }
+}
