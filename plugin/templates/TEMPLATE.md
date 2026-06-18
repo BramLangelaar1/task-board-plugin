@@ -9,6 +9,7 @@ moves between folders.
 id: 0001
 title: <title>
 kind: feature            # idea | feature | fix | doc | decision
+deployable:              # false → stays terminal in done/ (never ships); kind:doc never ships
 status: backlog          # mirror; the FOLDER is authoritative
 epic: <slug>             # topic grouping; one lead owns an epic
 spec:                    # path to the spec doc (set when specced)

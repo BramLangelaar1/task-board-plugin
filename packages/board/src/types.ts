@@ -28,6 +28,8 @@ export interface TaskFrontmatter {
   id: string;
   title: string;
   kind: TaskKind;
+  /** false → the task stays terminal in done/ and is never shipped (kind:doc never ships either). */
+  deployable?: boolean;
   status?: string;
   epic?: string;
   spec?: string;
