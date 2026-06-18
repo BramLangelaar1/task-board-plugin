@@ -94,4 +94,14 @@ describe("GitHubBoardSource", () => {
     const source = new GitHubBoardSource({ repo, ref: "main", fetchImpl: f });
     await expect(source.loadBoard()).rejects.toThrow(/404/);
   });
+
+  it("throws when the GitHub tree is truncated rather than rendering a partial board", async () => {
+    const f = (async (input: Parameters<typeof fetch>[0]) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("/git/trees/")) return json({ tree: [], truncated: true });
+      throw new Error(`unexpected url ${url}`);
+    }) as typeof fetch;
+    const source = new GitHubBoardSource({ repo, ref: "main", fetchImpl: f });
+    await expect(source.loadBoard()).rejects.toThrow(/truncated/);
+  });
 });

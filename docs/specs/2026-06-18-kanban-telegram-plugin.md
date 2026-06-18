@@ -84,7 +84,7 @@ the plugin so a project adopts the workflow without hand-copying.
 2. [live] Kanban renders a real board (sample fixture now; datablocks once it pushes its board) on a phone.
 3. Telegram fires on idea-proposed and ship-ready against a test board.
 4. Onboarding scaffolds the workflow into a fresh consumer repo in one step.
-5. datablocks can install it as the first consumer.
+5. [live] datablocks can install it as the first consumer (verified once datablocks runs its onboarding task).
 
 ## Risks / open items
 - **datablocks board not yet pushed to remote** → develop against `sample-board/`; the live-board path is

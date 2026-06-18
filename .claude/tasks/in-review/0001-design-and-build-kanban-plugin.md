@@ -37,7 +37,7 @@ mobile-friendly Kanban (idea → shipped) and sends Telegram alerts for idea-pro
 - [ ] Telegram fires on idea-proposed and ship-ready against a test board.
 - [ ] An onboarding/setup flow scaffolds the workflow (board + rule + reviewer prompts + Telegram config)
       into a fresh consumer project in one step.
-- [ ] datablocks can install it as the first consumer.
+- [ ] [live] datablocks can install it as the first consumer (verified once datablocks runs its own onboarding task).
 
 ## Context / Links
 Full charter + board schema + constraints: ../../KICKOFF.md (repo root KICKOFF.md). Design origin:
@@ -47,24 +47,31 @@ datablocks task-workflow spec (paths in KICKOFF.md).
 Built as a pnpm monorepo: `packages/board` (parser + Fs/GitHub sources), `apps/web` (Next.js mobile
 Kanban), `plugin/` (CC plugin: `/task-board:setup` + `/task-board:notify`), `sample-board/` fixture.
 
-Reviewer evidence (functional, per acceptance item):
-- Design decision captured → `docs/specs/2026-06-18-kanban-telegram-plugin.md` (monorepo + GitHub API +
-  GitHub App auth + reuse telegram plugin). PASS.
-- [live] Kanban renders a real board on a phone → fixture verified via mobile + desktop screenshots; the
-  live path verified too — `GitHubBoardSource` read this private repo over the GitHub API and the web app
-  rendered it (`github:BramLangelaar1/task-board-plugin@main`). PASS (datablocks' own live board pending
-  its push — see blocked item).
-- Telegram fires on idea-proposed & ship-ready → both verified via `notify.mjs --dry-run` on sample
-  tasks; degrades to printing when telegram is unconfigured. PASS (live send needs the telegram plugin
-  configured + paired).
-- Onboarding scaffolds the workflow in one step → `setup.mjs` verified idempotent (13 created → 13
-  skipped); scaffolded board parses. PASS.
-- datablocks can install it → install path ready; BLOCKED on datablocks pushing its board to the remote
-  (KICKOFF dependency) before live end-to-end verification.
+Reviewed by TWO independent reviewers against the committed branch `feat/kanban-telegram-plugin`
+(not self-assessed by the implementer):
 
-Code-quality: 5-dimension adversarial review (20 agents) → 10 confirmed findings fixed (incl. a high-sev
-whole-board crash on malformed YAML, now degrades to a placeholder card), 5 correctly refuted as
-out-of-scope. Gate green: 17 board tests pass, all typechecks clean, web builds.
+**Functional reviewer — PASS** (verified by running each item):
+- Item 1 (design decision) — spec states all four decisions (delivery / GitHub API / GitHub App auth /
+  reuse telegram plugin). PASS.
+- Item 2 [live] (renders a real board on a phone) — fixture: full pipeline + badges + task detail, mobile
+  screenshots at 390×844; live: `GitHubBoardSource` rendered this repo over the GitHub API AND rendered
+  datablocks' real board (`github:BramLangelaar1/datablocks@main`, 12 tasks). PASS.
+- Item 3 (telegram idea-proposed / ship-ready) — both events well-formed via `notify.mjs --dry-run`;
+  degrades to printing when unconfigured. PASS (live send needs the telegram plugin paired).
+- Item 4 (onboarding in one step) — `setup.mjs` idempotent (13 created → 13 skipped); scaffolded board
+  parses. PASS.
+- Item 5 [live] (datablocks installs as first consumer) — BLOCKED on datablocks running its own
+  onboarding task (`datablocks:.claude/tasks/backlog/0011-install-task-board-plugin.md`, still in its
+  backlog). NOTE: the earlier "datablocks hasn't pushed its board" dependency is RESOLVED — its board is
+  now on remote `main` and this plugin already renders it live.
 
-Auto-advances to `done/` on the `--no-ff` merge of `feat/kanban-telegram-plugin`. The datablocks-live
-acceptance item stays externally blocked until datablocks pushes its board.
+**Code-quality reviewer — PASS**: re-verified all 10 fixes from the prior adversarial review (5-dimension,
+20 agents) AND the de-datablocks cleanup on the final committed diff — zero datablocks-machinery leakage
+(outside KICKOFF), `[vm]`→`[live]` complete, dogfooded `.claude/` files byte-identical to the shipped
+templates. The adversarial review had fixed 10 confirmed findings (incl. a high-sev whole-board crash on
+malformed YAML → now a placeholder card) and refuted 5 as out-of-scope.
+
+Gate green: 17 board tests pass (+1 added for the Trees `truncated` guard), all typechecks clean, web builds.
+
+Auto-advances to `done/` on the `--no-ff` merge of `feat/kanban-telegram-plugin`. Item 5 is a `[live]`
+item — verified after datablocks adopts it (its task 0011); not a defect in this plugin.
