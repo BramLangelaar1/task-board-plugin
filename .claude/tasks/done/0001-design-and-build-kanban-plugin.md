@@ -2,7 +2,7 @@
 id: 0001
 title: Design & build the task-board Kanban + Telegram plugin
 kind: feature
-status: in-review
+status: done
 epic: kanban
 spec: docs/specs/2026-06-18-kanban-telegram-plugin.md
 plan: docs/plans/2026-06-18-kanban-telegram-plugin.md
@@ -17,8 +17,8 @@ reviewers:
   functional: pass
   code_quality: pass
 gates: green
-merge_commit:
-merged:
+merge_commit: 7d2e93e
+merged: 2026-06-18
 deploy_sha:
 shipped:
 verified:
