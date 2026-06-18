@@ -47,10 +47,11 @@ function parseTaskFile(content, filename) {
 
 function composeMessage(event, task) {
   if (event === "idea-proposed") {
-    return `💡 Idea awaiting go/no-go — ${task.id} ${task.title}\n\n${task.goal}\n\nReply go or no-go.`;
+    // The id is in the reply hint so a bare answer is unambiguous when several ideas are pending.
+    return `💡 Idea awaiting go/no-go — ${task.id} ${task.title}\n\n${task.goal}\n\nReply \`go ${task.id}\` or \`no-go ${task.id}\`.`;
   }
   const at = task.merge_commit ? ` at ${task.merge_commit}` : "";
-  return `🚀 Ship-ready — ${task.id} ${task.title}\n\nMerged${at}. Authorize a deploy?`;
+  return `🚀 Ship-ready — ${task.id} ${task.title}\n\nMerged${at}. Reply \`ship ${task.id}\` to authorize a deploy.`;
 }
 
 async function readMaybe(p) {

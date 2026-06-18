@@ -59,6 +59,12 @@ separately and link back via `parent:`. `decisions/` holds terminal `kind: decis
 - **idea-proposed** — a lead created a `kind: idea` `awaiting-go-no-go`; notify with the pitch.
 - **ship-ready** — a task reached `done/` and is deployable; notify so the user can authorize a deploy.
 
+Notifications are one-way (the keeper runs `notify` on a transition). To let the user **reply** and have
+it applied, run the keeper session with `--channels plugin:telegram@claude-plugins-official` (reusing the
+same bot); the lead applies the reply and commits the move: `go <id>` → approved → brainstorming,
+`no-go <id>` → `decisions/`, `ship <id>` → deploy. Without the channel, alerts still send but replies
+aren't received.
+
 ## Hard rules
 Commit/push/merge/deploy ONLY on explicit user request. Keep the board on the default branch in sync by
 committing each move.

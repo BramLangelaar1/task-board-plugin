@@ -11,7 +11,9 @@ workflow and sends Telegram notifications. The mobile-friendly Kanban UI lives i
   the board README/RELEASES, and the task `TEMPLATE.md`. Idempotent — never overwrites existing files.
 - **`/task-board:notify`** — send a Telegram alert for the two board events (`idea-proposed`,
   `ship-ready`), **reusing** the `telegram@claude-plugins-official` bot (no second bot). Degrades to
-  printing the message when Telegram isn't configured.
+  printing the message when Telegram isn't configured. To let the user **reply** (go/no-go, ship) and
+  have it drive the board, run the keeper session with `--channels plugin:telegram@claude-plugins-official`
+  (see the `notify` skill's "Two-way" section).
 
 ## Install
 
