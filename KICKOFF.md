@@ -7,11 +7,17 @@ need to start is here — you do NOT need the originating chat.
 You are the **lead engineer** for `task-board-plugin`. Build an **installable plugin** (reusable by any
 project — `datablocks` is the first consumer) that turns a project's filesystem task board into:
 1. a **mobile-friendly Kanban UI** rendering the full pipeline (idea → backlog → in-progress → in-review
-   → done → shipped), and
-2. **Telegram notifications** for two events (below).
+   → done → shipped),
+2. **Telegram notifications** for two events (below), and
+3. an **onboarding/setup flow** that scaffolds the workflow into a *consumer* project in one step —
+   creating the `.claude/tasks/` board, installing `.claude/rules/task-workflow.md` + the reviewer
+   prompts, and configuring Telegram — so a project adopts the whole workflow without hand-copying files.
+   (This is how a project like datablocks "installs" the workflow; treat it as a first-class feature, not
+   an afterthought.)
 
 It must NOT be datablocks-specific. It reads a project's board (committed markdown files) over
-**git/GitHub** and renders/notifies. Think "point it at any repo's `.claude/tasks/` and it just works."
+**git/GitHub** and renders/notifies. Think "point it at any repo's `.claude/tasks/` and it just works,"
+and "run one setup command and a new project is workflow-ready."
 
 ## Where this came from
 The board + workflow was designed in the `datablocks` project. Authoritative design (read if you can
