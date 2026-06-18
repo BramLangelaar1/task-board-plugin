@@ -1,6 +1,6 @@
 {
   "name": "task-board",
   "description": "Mobile-friendly Kanban + Telegram notifications + one-step workflow onboarding over a project's .claude/tasks board.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "keywords": ["kanban", "tasks", "workflow", "telegram"]
 }

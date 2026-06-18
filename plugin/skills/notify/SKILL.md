@@ -27,9 +27,11 @@ Add `--dry-run` to print the message without sending.
 It does **not** run a second bot. It sends via the Telegram Bot API using the same credentials the
 `telegram@claude-plugins-official` plugin manages:
 
-- **Token** — `$TELEGRAM_BOT_TOKEN`, else `~/.claude/channels/telegram/.env`.
-- **Chat** — `$TELEGRAM_CHAT_ID`, else the first allowed user in `~/.claude/channels/telegram/access.json`
-  (`allowFrom[0]`).
+- **Token** — `$TELEGRAM_BOT_TOKEN`, else `<state-dir>/.env`.
+- **Chat** — `$TELEGRAM_CHAT_ID`, else the first allowed user in `<state-dir>/access.json` (`allowFrom[0]`).
+
+`<state-dir>` is `$TELEGRAM_STATE_DIR` if set, else `~/.claude/channels/telegram` — the same variable the
+telegram plugin uses, so a board running its own bot (see "one bot per board" below) works for outbound too.
 
 **Graceful degrade:** if Telegram isn't configured (no token or no paired chat) or you pass `--dry-run`,
 the script prints the composed message to stdout instead of sending it — so the notification still
@@ -54,3 +56,16 @@ claude --channels plugin:telegram@claude-plugins-official
 
 The reply hints in the messages include the task id (`go 0012`) so answers are unambiguous when several
 ideas are pending. Without `--channels`, alerts still send but replies are never received.
+
+### One inbound stream per bot (operating rule)
+
+Telegram allows a single `getUpdates` consumer per bot, and the inbound bridge is the telegram plugin's —
+so:
+
+- Run the channel in **exactly one** board-keeper session per bot. Enabling the telegram channel in two
+  sessions on the same bot makes one silently swallow the other's replies (a consumed update is gone — it
+  is not redelivered).
+- For **multiple boards**, give each its **own bot** — a separate BotFather token + its own
+  `TELEGRAM_STATE_DIR` — instead of sharing one bot. Each bot then serves one board, so replies are
+  naturally delivered to the right keeper with no routing. (`notify` honors `TELEGRAM_STATE_DIR`, so
+  outbound alerts use that board's bot too.) See the `one-bot-per-board` decision.

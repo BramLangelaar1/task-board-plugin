@@ -62,9 +62,19 @@ async function readMaybe(p) {
   }
 }
 
+/**
+ * The telegram plugin's state directory. Overridable via TELEGRAM_STATE_DIR (same var the telegram
+ * plugin uses) so each board can run its own bot — see the "one bot per board" decision.
+ */
+function telegramStateDir() {
+  return (
+    process.env.TELEGRAM_STATE_DIR ?? path.join(os.homedir(), ".claude", "channels", "telegram")
+  );
+}
+
 async function resolveToken() {
   if (process.env.TELEGRAM_BOT_TOKEN) return process.env.TELEGRAM_BOT_TOKEN.trim();
-  const env = await readMaybe(path.join(os.homedir(), ".claude", "channels", "telegram", ".env"));
+  const env = await readMaybe(path.join(telegramStateDir(), ".env"));
   if (!env) return null;
   const m = /^TELEGRAM_BOT_TOKEN=(.*)$/m.exec(env);
   return m ? m[1].trim().replace(/^["']|["']$/g, "") : null;
@@ -72,9 +82,7 @@ async function resolveToken() {
 
 async function resolveChatId() {
   if (process.env.TELEGRAM_CHAT_ID) return process.env.TELEGRAM_CHAT_ID.trim();
-  const raw = await readMaybe(
-    path.join(os.homedir(), ".claude", "channels", "telegram", "access.json"),
-  );
+  const raw = await readMaybe(path.join(telegramStateDir(), "access.json"));
   if (!raw) return null;
   try {
     const access = JSON.parse(raw);
