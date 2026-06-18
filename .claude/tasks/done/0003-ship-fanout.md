@@ -2,7 +2,7 @@
 id: 0003
 title: Deployability-aware done→shipped fan-out (+ ship skill, deployable schema)
 kind: feature
-status: in-review
+status: done
 epic: workflow
 spec: docs/specs/2026-06-18-ship-fanout.md
 plan: docs/plans/2026-06-18-ship-fanout.md
@@ -18,8 +18,8 @@ reviewers:
   functional: pass
   code_quality: pass
 gates: green
-merge_commit:
-merged:
+merge_commit: 6206039
+merged: 2026-06-18
 deploy_sha:
 shipped:
 verified:
