@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #0b0d12;
+  --color-surface: #14171f;
+  --color-surface-2: #1b1f29;
+  --color-border: #262b37;
+  --color-ink: #e7e9ee;
+  --color-ink-dim: #9aa3b2;
+  --color-ink-faint: #6b7384;
+}
+
+html,
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Horizontal board scroller — snaps a column into view on mobile. */
+.board-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+.board-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.board-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
