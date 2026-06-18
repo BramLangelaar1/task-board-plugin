@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "task-board-plugin",
+  "description": "Marketplace for the task-board plugin — a mobile-friendly Kanban + Telegram notifications + onboarding over a project's .claude/tasks board.",
+  "owner": {
+    "name": "Bram Langelaar"
+  },
+  "plugins": [
+    {
+      "name": "task-board",
+      "description": "Onboard a project onto the filesystem task-board workflow (/task-board:setup) and send Telegram alerts for idea-proposed / ship-ready (/task-board:notify), reusing the official telegram plugin's bot. The mobile Kanban UI lives in the repo's apps/web.",
+      "source": "./plugin",
+      "category": "productivity",
+      "homepage": "https://github.com/BramLangelaar1/task-board-plugin"
+    }
+  ]
+}
