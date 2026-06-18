@@ -41,11 +41,16 @@ export function isDeployable(fm) {
   return String(fm.deployable).trim() !== "false" && fm.kind !== "doc";
 }
 
-/** Set an existing `key:` line in the frontmatter, or insert one before the closing fence. */
+/**
+ * Set a `key:` line within the FRONTMATTER block only — replace it if present, else insert before the
+ * closing fence. Scoped to the frontmatter so a body line like `release: …` is never clobbered.
+ */
 function setField(content, key, value) {
+  const m = /^(---\r?\n)([\s\S]*?)(\r?\n---)/.exec(content);
+  if (!m) return content;
   const re = new RegExp(`^${key}:.*$`, "m");
-  if (re.test(content)) return content.replace(re, `${key}: ${value}`);
-  return content.replace(/\n---/, `\n${key}: ${value}\n---`);
+  const inner = re.test(m[2]) ? m[2].replace(re, `${key}: ${value}`) : `${m[2]}\n${key}: ${value}`;
+  return content.slice(0, m.index) + m[1] + inner + content.slice(m.index + m[1].length + m[2].length);
 }
 
 async function readMaybe(p) {
@@ -78,7 +83,6 @@ export async function runFanout({
   const tasksDir = path.join(repoRoot, ".claude", "tasks");
   const doneDir = path.join(tasksDir, "done");
   const shippedDir = path.join(tasksDir, "shipped");
-  const shortSha = deploySha.slice(0, 7);
 
   const carried = [];
   const skipped = [];
@@ -112,10 +116,17 @@ export async function runFanout({
       updated = setField(updated, "deploy_sha", deploySha);
       updated = setField(updated, "shipped", date);
       updated = setField(updated, "verified", verified);
-      updated = setField(updated, "release", `RELEASES.md#${shortSha}`);
+      updated = setField(updated, "release", "RELEASES.md");
       await fs.mkdir(shippedDir, { recursive: true });
-      await fs.writeFile(path.join(shippedDir, filename), updated);
-      await fs.rm(srcPath);
+      const destPath = path.join(shippedDir, filename);
+      await fs.writeFile(destPath, updated);
+      try {
+        await fs.rm(srcPath);
+      } catch (err) {
+        // Keep the board invariant (a task lives in exactly one folder): undo the shipped copy.
+        await fs.rm(destPath, { force: true });
+        throw err;
+      }
     }
     moved.push(fm.id);
     movedEntries.push({ id: fm.id, title: fm.title });
@@ -123,13 +134,21 @@ export async function runFanout({
 
   let releaseLine = null;
   if (moved.length > 0) {
-    const list = movedEntries.map((e) => `${e.id} ${e.title}`).join(", ");
-    releaseLine = `- ${date} — deploy ${shortSha} — ${list} — verified ${verified}`;
+    // Machine-parseable line matching templates/RELEASES.md — the done→shipped step reads the previous
+    // deploy_sha from here as its lower bound, so the FULL sha is recorded.
+    const tasks = movedEntries.map((e) => e.id).join(",");
+    releaseLine = `${date} | deploy_sha=${deploySha} | verified=${verified} | tasks=${tasks}`;
     if (!dryRun) {
       const relPath = path.join(tasksDir, "RELEASES.md");
-      const existing = await readMaybe(relPath);
-      const base = existing ?? "# Releases\n\nAppend-only deploy log. One line per deploy window.\n";
-      await fs.writeFile(relPath, `${base}${base.endsWith("\n") ? "" : "\n"}${releaseLine}\n`);
+      const header =
+        "# Releases\n\nAppend-only log of deploys. One line per deploy; the `done→shipped` step reads the\n" +
+        "previous `deploy_sha` here as its lower bound (see `../rules/task-workflow.md`).\n\n" +
+        "Format: `<date> | deploy_sha=<sha> | verified=<ok|awaiting-operator|failed> | tasks=<id,id,…>`\n";
+      let base = (await readMaybe(relPath)) ?? header;
+      // Drop the scaffolded "(no deploys yet)" placeholder on the first real deploy.
+      base = base.replace(/\n*\(no deploys yet\)\n*/g, "\n");
+      if (!base.endsWith("\n")) base += "\n";
+      await fs.writeFile(relPath, `${base}${releaseLine}\n`);
     }
   }
 

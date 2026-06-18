@@ -69,7 +69,7 @@ describe("runFanout over a mixed deployable/non-deployable window", () => {
     expect(shipped).toMatch(/^deploy_sha: deadbeefcafe$/m);
     expect(shipped).toMatch(/^shipped: 2026-06-18$/m);
     expect(shipped).toMatch(/^verified: ok$/m);
-    expect(shipped).toMatch(/^release: RELEASES\.md#deadbee$/m);
+    expect(shipped).toMatch(/^release: RELEASES\.md$/m);
 
     // 0010 left done/; the others stay terminal there.
     await expect(fs.access(path.join(doneDir, "0010-feature-a.md"))).rejects.toBeDefined();
@@ -78,11 +78,53 @@ describe("runFanout over a mixed deployable/non-deployable window", () => {
     }
 
     const releases = await fs.readFile(path.join(root, ".claude", "tasks", "RELEASES.md"), "utf8");
-    const entries = releases.split("\n").filter((l) => l.startsWith("- "));
+    // Real entry lines are date-prefixed (the `Format:` doc line also contains `deploy_sha=`).
+    const entries = releases.split("\n").filter((l) => /^\d{4}-\d{2}-\d{2} \| deploy_sha=/.test(l));
     expect(entries).toHaveLength(1);
-    expect(entries[0]).toContain("0010 feature-a title");
-    expect(entries[0]).toContain("deploy deadbee");
+    expect(entries[0]).toContain("deploy_sha=deadbeefcafe");
+    expect(entries[0]).toContain("tasks=0010");
     expect(entries[0]).not.toContain("0011");
+  });
+
+  it("replaces existing frontmatter placeholders (no duplicates) and never clobbers body lines", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "tbp-fanout-tpl-"));
+    const doneDir = path.join(dir, ".claude", "tasks", "done");
+    await fs.mkdir(doneDir, { recursive: true });
+    const file = [
+      "---",
+      "id: 0030",
+      "title: templated",
+      "kind: feature",
+      "status: done",
+      "merge_commit: fffffff",
+      "deploy_sha:", // empty placeholder → must be REPLACED, not duplicated
+      "shipped:",
+      "verified:",
+      "---", // no `release:` in frontmatter → must be INSERTED into the frontmatter
+      "## Notes",
+      "release: SHOULD-SURVIVE", // body line at col 0 → must NOT be clobbered
+      "",
+    ].join("\n");
+    await fs.writeFile(path.join(doneDir, "0030-templated.md"), file);
+
+    await runFanout({
+      repoRoot: dir,
+      deploySha: "abcdef123456",
+      date: "2026-06-18",
+      isAncestor: () => true,
+      log() {},
+    });
+
+    const out = await fs.readFile(
+      path.join(dir, ".claude", "tasks", "shipped", "0030-templated.md"),
+      "utf8",
+    );
+    expect(out.match(/^deploy_sha: abcdef123456$/gm)).toHaveLength(1); // replaced once, not duplicated
+    expect(out).toMatch(/^status: shipped$/m);
+    expect(out).toMatch(/^verified: ok$/m);
+    expect(out).toMatch(/^release: RELEASES\.md$/m); // inserted into frontmatter
+    expect(out).toContain("release: SHOULD-SURVIVE"); // body line untouched (setField scoped to frontmatter)
+    await fs.rm(dir, { recursive: true, force: true });
   });
 
   it("--dry-run reports the plan but moves nothing", async () => {
